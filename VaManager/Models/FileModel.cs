@@ -14,7 +14,7 @@ public sealed class FileModel : ViewModelBase<FileModel>
     private const int MaxHistory = 10;
     private string _explorerPath = string.Empty;
     private int _historyIndex;
-    private FolderDescriptor? _folderSelect = FileManager.Instance.GetFolderDescriptor("")!;
+    private FolderDescriptor? _folderOpen = FileManager.Instance.GetFolderDescriptor("")!;
     private ItemDescriptor? _itemSelect;
     private FileDescriptor? _fileSelect;
     private bool _flatView;
@@ -32,19 +32,19 @@ public sealed class FileModel : ViewModelBase<FileModel>
         ];
     }
 
-    public FolderDescriptor? FolderSelect
+    public FolderDescriptor? FolderOpen
     {
-        get => _folderSelect;
+        get => _folderOpen;
         set
         {
-            if (value == _folderSelect || value == null)
+            if (value == _folderOpen || value == null)
             {
-                ExplorerPath = _folderSelect?.Path ?? ExplorerPath;
+                ExplorerPath = _folderOpen?.Path ?? ExplorerPath;
                 return;
             }
 
-            _folderSelect = value;
-            ExplorerPath = _folderSelect.Path;
+            _folderOpen = value;
+            ExplorerPath = _folderOpen.Path;
             RefreshFileList();
         }
     }
@@ -120,14 +120,14 @@ public sealed class FileModel : ViewModelBase<FileModel>
                 ItemList.Add(file);
             }
         }
-        else if (FolderSelect is not null)
+        else if (FolderOpen is not null)
         {
-            foreach (var folder in FolderSelect.Children)
+            foreach (var folder in FolderOpen.Children)
             {
                 ItemList.Add(folder);
             }
 
-            foreach (var file in FolderSelect.Files.Filter(FileFilters))
+            foreach (var file in FolderOpen.Files.Filter(FileFilters))
             {
                 ItemList.Add(file);
             }
@@ -174,7 +174,7 @@ public sealed class FileModel : ViewModelBase<FileModel>
             HistoryIndex = 0;
         }
 
-        FolderSelect = folder;
+        FolderOpen = folder;
     }
 
     public void NavigateToPath(string folderPath, bool addHistory = true)

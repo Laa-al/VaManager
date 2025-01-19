@@ -8,14 +8,6 @@
              mc:Ignorable="d" d:DesignHeight="900" d:DesignWidth="900"
              DataContext="{Binding Source={x:Static model:ModModel.Instance}}">
     <Grid>
-        <Grid.Resources>
-            <ContextMenu x:Key="ModContextMenu">
-                <MenuItem Name="OnlyFilterThis" Header="仅选择此项" Click="SelectOnly_OnClick"></MenuItem>
-                <MenuItem Name="DeleteThisMod" Header="删除此Mod" Click="DeleteMod_OnClick"></MenuItem>
-                <MenuItem Name="OpenLocalPath" Header="打开本地路径" Click="OpenLocalPath_OnClick"></MenuItem>
-                <MenuItem Name="OpenFile" Header="打开本地文件" Click="OpenFile_OnClick"></MenuItem>
-            </ContextMenu>
-        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
@@ -25,7 +17,6 @@
                       Content="仅显示相同Guid">
             </CheckBox>
         </StackPanel>
-
         <DataGrid Grid.Row="1"
                   ItemsSource="{Binding ModList}"
                   SelectedItem="{Binding ModSelect}"
@@ -37,7 +28,22 @@
                   VirtualizingPanel.CacheLengthUnit="Page"
                   VirtualizingPanel.VirtualizationMode="Recycling"
                   VirtualizingPanel.IsContainerVirtualizable="True"
+                  Style="{StaticResource MaterialDesignDataGrid}"
                   md:DataGridAssist.ApplyMaterialDesignColumnStyles="True">
+            <DataGrid.Resources>
+                <ContextMenu x:Key="DataGridContextMenu">
+                    <MenuItem Header="仅选择此项" Click="RoutedEvent_FilterOnly"></MenuItem>
+                    <MenuItem Header="删除此Mod" Click="RoutedEvent_DeleteFile"></MenuItem>
+                    <MenuItem Header="打开本地路径" Click="RoutedEvent_OpenAndSelectFile"></MenuItem>
+                    <MenuItem Header="打开本地文件" Click="RoutedEvent_OpenFile"></MenuItem>
+                </ContextMenu>
+            </DataGrid.Resources>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow"  BasedOn="{StaticResource MaterialDesignDataGridRow}">
+                    <Setter Property="ContextMenu" Value="{StaticResource DataGridContextMenu}"></Setter>
+                    <EventSetter Event="MouseDoubleClick" Handler="MouseButtonEvent_OpenFile"></EventSetter>
+                </Style>
+            </DataGrid.RowStyle>
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Width="Auto"
                                         Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
@@ -50,90 +56,52 @@
                         </Border>
                     </DataGridCheckBoxColumn.Header>
                 </DataGridCheckBoxColumn>
-                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="PackageName">
-                    <DataGridTemplateColumn.Header>
+                <DataGridTextColumn IsReadOnly="True" Binding="{Binding PackageName, Mode=OneWay}">
+                    <DataGridTextColumn.Header>
                         <StackPanel>
                             <TextBlock>名称</TextBlock>
                             <TextBox md:HintAssist.Hint="搜索名称"
                                      Text="{Binding NameFilter.FilterValue,
                                       Source={x:Static model:ModModel.Instance}}" />
                         </StackPanel>
-                    </DataGridTemplateColumn.Header>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding PackageName, Mode=OneWay}"
-                                       MouseDown="Line_OnClick"
-                                       ContextMenu="{StaticResource ModContextMenu}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="CreatorName">
-                    <DataGridTemplateColumn.Header>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                <DataGridTextColumn IsReadOnly="True" Binding="{Binding CreatorName, Mode=OneWay}">
+                    <DataGridTextColumn.Header>
                         <StackPanel>
                             <TextBlock>作者</TextBlock>
                             <TextBox md:HintAssist.Hint="搜索作者"
                                      Text="{Binding CreatorFilter.FilterValue,
                                       Source={x:Static model:ModModel.Instance}}" />
                         </StackPanel>
-                    </DataGridTemplateColumn.Header>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding CreatorName, Mode=OneWay}"
-                                       MouseDown="Line_OnClick"
-                                       ContextMenu="{StaticResource ModContextMenu}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
-                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="FileName">
-                    <DataGridTemplateColumn.Header>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                <DataGridTextColumn IsReadOnly="True" Binding="{Binding FileName, Mode=OneWay}">
+                    <DataGridTextColumn.Header>
                         <StackPanel>
                             <TextBlock>文件名</TextBlock>
                             <TextBox md:HintAssist.Hint="搜索文件名"
                                      Text="{Binding FileNameFilter.FilterValue,
                                       Source={x:Static model:ModModel.Instance}}" />
                         </StackPanel>
-                    </DataGridTemplateColumn.Header>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding FileName, Mode=OneWay}"
-                                       MouseDown="Line_OnClick"
-                                       ContextMenu="{StaticResource ModContextMenu}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
                 <DataGridTextColumn IsReadOnly="True" Header="大小" SortMemberPath="Length"
                                     Binding="{Binding  LengthDesc,Mode=OneWay}">
                 </DataGridTextColumn>
-                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="ModPath">
-                    <DataGridTemplateColumn.Header>
+                <DataGridTextColumn IsReadOnly="True" Binding="{Binding ModPath, Mode=OneWay}">
+                    <DataGridTextColumn.Header>
                         <StackPanel>
                             <TextBlock>Mod路径</TextBlock>
                             <TextBox md:HintAssist.Hint="搜索路径"
                                      Text="{Binding PathFilter.FilterValue,
                                       Source={x:Static model:ModModel.Instance}}" />
                         </StackPanel>
-                    </DataGridTemplateColumn.Header>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock TextWrapping="Wrap"
-                                       Text="{Binding ModPath, Mode=OneWay}"
-                                       MouseDown="Line_OnClick"
-                                       ContextMenu="{StaticResource ModContextMenu}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="ProgramVersion" Header="应用版本">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock TextWrapping="Wrap"
-                                       Text="{Binding ProgramVersion, Mode=OneWay}"
-                                       MouseDown="Line_OnClick"
-                                       ContextMenu="{StaticResource ModContextMenu}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                <DataGridTextColumn IsReadOnly="True" Header="应用版本"
+                                    Binding="{Binding ProgramVersion, Mode=OneWay}">
+                </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

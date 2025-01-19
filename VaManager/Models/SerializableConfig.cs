@@ -14,7 +14,7 @@ public class SerializableConfig:ViewModelBase
         set => SetProperty(ref _mainFolderPath, value);
     }
 
-    public ObservableCollection<string> ExtraModPaths { get; } = [];
+    public ObservableCollection<string> ExtraModPaths { get; set; } = [];
 
     public long MaxImageLength
     {

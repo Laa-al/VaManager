@@ -20,69 +20,70 @@ public partial class ModBrowser
     private ModModel Model => (ModModel)DataContext;
 
 
-    private void SelectOnly_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem { DataContext: ModDescriptor descriptor })
-        {
-            foreach (var mod in FileManager.Instance.ModDescriptors)
-            {
-                mod.IsSelected = false;
-            }
+    #region Data Grid Event
 
-            descriptor.IsSelected = true;
-            FileModel.Instance.RefreshFileList();
-            ModModel.Instance.RefreshModList();
-        }
-    }
-
-    private void DeleteMod_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is MenuItem { DataContext: ModDescriptor descriptor })
-        {
-            FileManager.Instance.DeleteMod(descriptor);
-        }
-    }
-
-    private void OpenLocalPath_OnClick(object sender, RoutedEventArgs e)
-    {
-        OpenFolder(sender);
-    }
-
-    private void OpenFile_OnClick(object sender, RoutedEventArgs e)
-    {
-        OpenFile(sender);
-    }
-
-    private void Line_OnClick(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ClickCount > 1)
-        {
-            OpenFile(sender);
-        }
-    }
-
-
-    private void OpenFolder(object sender)
+    private void ActionInvokeWithContext(object sender, Action<ModDescriptor> action)
     {
         if (sender is FrameworkElement { DataContext: ModDescriptor descriptor })
         {
-            var psi = new System.Diagnostics.ProcessStartInfo("Explorer.exe")
-            {
-                Arguments = "/e,/select," + descriptor.ModPath
-            };
-            System.Diagnostics.Process.Start(psi);
+            action(descriptor);
         }
     }
 
-    private void OpenFile(object sender)
+    private void RoutedEvent_FilterOnly(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement { DataContext: ModDescriptor descriptor })
-        {
-            var psi = new System.Diagnostics.ProcessStartInfo("Explorer.exe")
-            {
-                Arguments = descriptor.ModPath
-            };
-            System.Diagnostics.Process.Start(psi);
-        }
+        ActionInvokeWithContext(sender, FilterOnly);
     }
+
+    private void RoutedEvent_DeleteFile(object sender, RoutedEventArgs e)
+    {
+        ActionInvokeWithContext(sender, DeleteFile);
+    }
+
+    private void RoutedEvent_OpenAndSelectFile(object sender, RoutedEventArgs e)
+    {
+        ActionInvokeWithContext(sender, OpenFolderAndSelectFile);
+    }
+
+    private void RoutedEvent_OpenFile(object sender, RoutedEventArgs e)
+    {
+        ActionInvokeWithContext(sender, OpenFile);
+    }
+
+    private void MouseButtonEvent_OpenFile(object sender, MouseButtonEventArgs e)
+    {
+        ActionInvokeWithContext(sender, OpenFile);
+    }
+
+    #endregion
+
+    #region Function
+
+    private void OpenFolderAndSelectFile(ModDescriptor descriptor)
+    {
+        FileManager.OpenFolderAndSelectFile(descriptor.ModPath);
+    }
+
+    private void OpenFile(ModDescriptor descriptor)
+    {
+        FileManager.OpenFileOrFolder(descriptor.ModPath);
+    }
+
+    private void DeleteFile(ModDescriptor descriptor)
+    {
+        FileManager.Instance.DeleteMod(descriptor);
+    }
+    
+    private void FilterOnly(ModDescriptor descriptor)
+    {
+        foreach (var mod in FileManager.Instance.ModDescriptors)
+        {
+            mod.IsSelected = false;
+        }
+
+        descriptor.IsSelected = true;
+        FileModel.Instance.RefreshFileList();
+    }
+
+    #endregion
 }

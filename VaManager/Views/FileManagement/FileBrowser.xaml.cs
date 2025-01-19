@@ -23,7 +23,9 @@ public partial class FileBrowser
 
     private FileModel Model => (FileModel)DataContext;
 
-    private void NavigateInput_OnKeyUp(object sender, KeyEventArgs e)
+    #region Navigate
+    
+    private void KeyEvent_Navigate(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
         {
@@ -31,128 +33,73 @@ public partial class FileBrowser
         }
     }
 
-    private void NavigateButton_OnClick(object sender, RoutedEventArgs e)
+    private void RoutedEvent_Navigate(object sender, RoutedEventArgs e)
     {
         Model.NavigateToPath(Model.ExplorerPath);
     }
 
-    private void NavigateBackButton_OnClick(object sender, RoutedEventArgs e)
+    private void RoutedEvent_NavigateBack(object sender, RoutedEventArgs e)
     {
-        var path = Model.FolderSelect?.Parent?.Path;
+        var path = Model.FolderOpen?.Parent?.Path;
         if (path is not null)
         {
             Model.NavigateToPath(path);
         }
     }
 
-    private void RefreshButton_OnClick(object sender, RoutedEventArgs e)
+    private void RoutedEvent_NavigateRefresh(object sender, RoutedEventArgs e)
     {
         Model.RefreshFileList();
     }
 
-    private void NavigateBeforeButton_OnClick(object sender, RoutedEventArgs e)
+    private void RoutedEvent_NavigateBefore(object sender, RoutedEventArgs e)
     {
         Model.NavigateBefore();
     }
 
-    private void NavigateNextButton_OnClick(object sender, RoutedEventArgs e)
+    private void RoutedEvent_NavigateNext(object sender, RoutedEventArgs e)
     {
         Model.NavigateNext();
     }
 
-    private void OpenFile_OnClick(object sender, RoutedEventArgs e)
-    {
-        EnsureSelectItem(sender);
-    }
+    #endregion
 
-    private void Item_OnClick(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ClickCount > 1)
-        {
-            EnsureSelectItem(sender);
-        }
-    }
+    #region Data Grid Event
 
-    private void EnsureSelectItem(object sender)
+    private void ActionInvokeWithContext(object sender, Action<ItemDescriptor> action)
     {
         if (sender is FrameworkElement { DataContext: ItemDescriptor descriptor })
         {
-            switch (descriptor)
-            {
-                case FolderDescriptor folderDescriptor:
-                    Model.FolderSelect = folderDescriptor;
-                    break;
-                case FileDescriptor fileDescriptor:
-                    if (fileDescriptor.Mod is null)
-                    {
-                        var mainPath = ConfigModel.ConfigInstance.MainFolderPath;
-                        var filePath = fileDescriptor.Path["/root/".Length..];
-                        var path = Path.Combine(mainPath, filePath);
-
-                        OpenFile(path.Replace('/','\\'));
-                    }
-                    else
-                    {
-                        Task.Run(() =>
-                        {
-                            var environment = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                            var path = Path.Combine(environment, "AppData/Local/Temp",
-                                GlobalResources.CachePath, fileDescriptor.Mod.Guid,
-                                fileDescriptor.Mod.ProgramVersion,
-                                fileDescriptor.Path[1..]).Replace('/','\\');
-                            if (File.Exists(path))
-                            {
-                                OpenFile(path);
-                            }
-                            else
-                            {
-                                fileDescriptor.UsingStream(s =>
-                                {
-                                    try
-                                    {
-                                        var folder = Path.GetDirectoryName(path);
-                                        if (folder is null) return;
-
-                                        if (!Directory.Exists(folder))
-                                        {
-                                            CreateDirectory(folder);
-                                        }
-
-                                        File.WriteAllBytes(path, s.ReadAllBytes());
-
-                                        OpenFile(path);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Log.Error(e, "Failed to upzip mod.");
-                                    }
-
-                                    return;
-
-                                    void CreateDirectory(string p)
-                                    {
-                                        var pre = Path.GetDirectoryName(p);
-                                        if (!Directory.Exists(pre))
-                                            CreateDirectory(pre!);
-                                        Directory.CreateDirectory(p);
-                                    }
-                                });
-                            }
-                        });
-                    }
-
-                    break;
-            }
+            action(descriptor);
         }
     }
 
-
-    private void OpenFile(string path)
+    private void RoutedEvent_OpenItem(object sender, RoutedEventArgs e)
     {
-        var psi = new System.Diagnostics.ProcessStartInfo("Explorer.exe")
-        {
-            Arguments = path
-        };
-        System.Diagnostics.Process.Start(psi);
+        ActionInvokeWithContext(sender, OpenItem);
     }
+
+    private void MouseButtonEvent_OpenItem(object sender, MouseButtonEventArgs e)
+    {
+        ActionInvokeWithContext(sender, OpenItem);
+    }
+
+    #endregion
+
+    #region Function
+
+    private void OpenItem(ItemDescriptor descriptor)
+    {
+        switch (descriptor)
+        {
+            case FolderDescriptor folderDescriptor:
+                Model.FolderOpen = folderDescriptor;
+                break;
+            case FileDescriptor fileDescriptor:
+                fileDescriptor.OpenLocalFile();
+                break;
+        }
+    }
+    
+    #endregion
 }

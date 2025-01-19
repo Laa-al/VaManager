@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Concurrent;
+using System.IO;
 using System.IO.Compression;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -7,6 +8,7 @@ using VaManager.Data.Mods;
 using VaManager.Extensions;
 using VaManager.Models;
 using VaManager.Resources;
+using VaManager.Services;
 
 namespace VaManager.Data.Files;
 
@@ -38,15 +40,11 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
     }
 
     public long Length { get; set; }
-    public override string LengthDesc => NumberExtensions. GetFileLengthDesc(Length);
-
+    public override string LengthDesc => NumberExtensions.GetFileLengthDesc(Length);
     public long CompressedLength { get; set; }
     public override string CompressedLengthDesc => NumberExtensions.GetFileLengthDesc(CompressedLength);
-
     public bool IsModFile => Mod is not null;
-
     public override string Path => $"{Folder?.Path}/{Name}";
-
     public override string Type => Name[(Name.LastIndexOf('.') + 1)..];
 
     public override BitmapImage? Preview
@@ -60,33 +58,7 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
 
             if (_preview is null)
             {
-                Application.Current.Dispatcher.BeginInvoke(() =>
-                {
-                    _preview = GlobalResources.Instance.DefaultImage;
-                });
-                switch (Type)
-                {
-                    case "png":
-                    case "jpg":
-                    {
-                        UsingStream(s =>
-                        {
-                            var bytes = s.ReadAllBytes();
-                            Application.Current.Dispatcher.BeginInvoke(() =>
-                            {
-                                var image = new BitmapImage();
-                                image.BeginInit();
-                                image.StreamSource = new MemoryStream(bytes);
-                                image.EndInit();
-                                SetProperty(ref _preview, image);
-                            });
-                        });
-
-                        break;
-                    }
-                    default:
-                        break;
-                }
+                AutoSetPreview();
             }
 
             return _preview;
@@ -95,6 +67,86 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
 
     public override string Description => Mod?.PackageName ?? "未知";
 
+    #region Function
+
+    private static readonly ConcurrentDictionary<string, FileDescriptor> Cache = [];
+
+    private void AutoSetPreview()
+    {
+        Application.Current.Dispatcher.BeginInvoke(() => { _preview = GlobalResources.Instance.DefaultImage; });
+        switch (Type)
+        {
+            case "png":
+            case "jpg":
+            {
+                UsingStream(s =>
+                {
+                    var bytes = s.ReadAllBytes();
+                    Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        var image = new BitmapImage();
+                        image.BeginInit();
+                        image.StreamSource = new MemoryStream(bytes);
+                        image.EndInit();
+                        SetProperty(ref _preview, image);
+                    });
+                });
+
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    public void OpenLocalFile()
+    {
+        if (Mod is null)
+        {
+            var mainPath = ConfigModel.ConfigInstance.MainFolderPath;
+            var filePath = Path["/root/".Length..];
+            var path = System.IO.Path.Combine(mainPath, filePath);
+            FileManager.OpenFileOrFolder(path);
+            return;
+        }
+
+        Task.Run(OpenFileInMod);
+    }
+
+    private void OpenFileInMod()
+    {
+        var environment = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var path = System.IO.Path.Combine(environment, "AppData/Local/Temp",
+            GlobalResources.CachePath, Mod!.FileName, Path[1..]);
+        if (File.Exists(path))
+        {
+            FileManager.OpenFileOrFolder(path);
+            return;
+        }
+
+        if (Cache.ContainsKey(path)) return;
+
+        var folder = System.IO.Path.GetDirectoryName(path);
+        if (folder is null) return;
+        if (!FileManager.EnsureFolderExist(folder)) return;
+
+        Cache.TryAdd(path, this);
+
+        try
+        {
+            UsingStream(s =>
+            {
+                File.WriteAllBytes(path, s.ReadAllBytes());
+                FileManager.OpenFileOrFolder(path);
+            });
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, e.Message);
+        }
+
+        Cache.Remove(path, out _);
+    }
 
     public void UsingStream(Action<Stream> action)
     {
@@ -134,4 +186,6 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
             }
         }
     }
+
+    #endregion
 }

@@ -221,4 +221,37 @@ public class FileManager
         ModModel.Instance.RefreshModList();
         FileModel.Instance.RefreshFileList();
     }
+
+    #region Static Function
+
+    public static void OpenFileOrFolder(string path)
+    {
+        var psi = new System.Diagnostics.ProcessStartInfo("Explorer.exe")
+        {
+            Arguments = path.Replace('/', '\\')
+        };
+        System.Diagnostics.Process.Start(psi);
+    }
+
+    public static void OpenFolderAndSelectFile(string path)
+    {
+        var psi = new System.Diagnostics.ProcessStartInfo("Explorer.exe")
+        {
+            Arguments = "/e,/select," + path.Replace('/', '\\')
+        };
+        System.Diagnostics.Process.Start(psi);
+    }
+
+    public static bool EnsureFolderExist(string folderPath)
+    {
+        if (Directory.Exists(folderPath)) return true;
+        var parentFolderPath = Path.GetDirectoryName(folderPath);
+        if (parentFolderPath is null) return false;
+        if (!EnsureFolderExist(parentFolderPath)) return false;
+        EnsureFolderExist(parentFolderPath);
+        Directory.CreateDirectory(folderPath);
+        return true;
+    }
+
+    #endregion
 }

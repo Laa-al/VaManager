@@ -10,11 +10,6 @@
              mc:Ignorable="d" d:DesignHeight="900" d:DesignWidth="900"
              DataContext="{Binding Source={x:Static model:FileModel.Instance}}">
     <Grid>
-        <Grid.Resources>
-            <ContextMenu x:Key="FileContextMenu">
-                <MenuItem Name="Open" Header="打开" Click="OpenFile_OnClick"></MenuItem>
-            </ContextMenu>
-        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -30,23 +25,23 @@
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <Button ToolTip="刷新" Click="RefreshButton_OnClick">
+                <Button ToolTip="刷新" Click="RoutedEvent_NavigateRefresh">
                     <md:PackIcon Kind="Refresh" />
                 </Button>
-                <Button ToolTip="后退" Click="NavigateBeforeButton_OnClick">
+                <Button ToolTip="后退" Click="RoutedEvent_NavigateBefore">
                     <md:PackIcon Kind="NavigateBefore" />
                 </Button>
-                <Button ToolTip="前进" Click="NavigateNextButton_OnClick">
+                <Button ToolTip="前进" Click="RoutedEvent_NavigateNext">
                     <md:PackIcon Kind="NavigateNext" />
                 </Button>
-                <Button ToolTip="上级" Click="NavigateBackButton_OnClick">
+                <Button ToolTip="上级" Click="RoutedEvent_NavigateBack">
                     <md:PackIcon Kind="ArrowUp" />
                 </Button>
             </StackPanel>
-            <TextBox Grid.Column="1" KeyUp="NavigateInput_OnKeyUp"
+            <TextBox Grid.Column="1" KeyUp="KeyEvent_Navigate"
                      Text="{Binding ExplorerPath,Mode=TwoWay}">
             </TextBox>
-            <Button Grid.Column="2" ToolTip="确认" Click="NavigateButton_OnClick">
+            <Button Grid.Column="2" ToolTip="确认" Click="RoutedEvent_Navigate">
                 <md:PackIcon Kind="NavigationVariantOutline" />
             </Button>
         </Grid>
@@ -70,62 +65,53 @@
                   VirtualizingPanel.CacheLengthUnit="Page"
                   VirtualizingPanel.VirtualizationMode="Recycling"
                   VirtualizingPanel.IsContainerVirtualizable="True"
+                  Style="{StaticResource MaterialDesignDataGrid}"
                   md:DataGridAssist.ApplyMaterialDesignColumnStyles="True">
-            <DataGrid.Resources></DataGrid.Resources>
+            <DataGrid.Resources>
+                <ContextMenu x:Key="FileContextMenu">
+                    <MenuItem Header="打开" Click="RoutedEvent_OpenItem"></MenuItem>
+                </ContextMenu>
+            </DataGrid.Resources>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}">
+                    <Setter Property="ContextMenu" Value="{StaticResource FileContextMenu}"></Setter>
+                    <EventSetter Event="MouseDoubleClick" Handler="MouseButtonEvent_OpenItem"></EventSetter>
+                </Style>
+            </DataGrid.RowStyle>
             <DataGrid.Columns>
-                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="Name">
-                    <DataGridTemplateColumn.Header>
+                <DataGridTextColumn IsReadOnly="True"
+                                    Binding="{Binding Name, Mode=OneWay}">
+                    <DataGridTextColumn.Header>
                         <StackPanel>
                             <TextBlock>名称</TextBlock>
                             <TextBox md:HintAssist.Hint="搜索名称"
                                      Text="{Binding NameFilter.FilterValue,
                                      Source={x:Static model:FileModel.Instance}}" />
                         </StackPanel>
-                    </DataGridTemplateColumn.Header>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock
-                                Text="{Binding Name, Mode=OneWay}"
-                                MouseDown="Item_OnClick"
-                                ContextMenu="{StaticResource FileContextMenu}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="Type">
-                    <DataGridTemplateColumn.Header>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                <DataGridTextColumn IsReadOnly="True"
+                                    Binding="{Binding Type, Mode=OneWay}">
+                    <DataGridTextColumn.Header>
                         <StackPanel>
                             <TextBlock>类型</TextBlock>
                             <TextBox md:HintAssist.Hint="搜索类型"
                                      Text="{Binding TypeFilter.FilterValue ,
                                      Source={x:Static model:FileModel.Instance}}" />
                         </StackPanel>
-                    </DataGridTemplateColumn.Header>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Type, Mode=OneWay}"
-                                       MouseDown="Item_OnClick"
-                                       ContextMenu="{StaticResource FileContextMenu}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="Description">
-                    <DataGridTemplateColumn.Header>
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
+                <DataGridTextColumn IsReadOnly="True"
+                                    Binding="{Binding Description, Mode=OneWay}">
+                    <DataGridTextColumn.Header>
                         <StackPanel>
                             <TextBlock>Mod</TextBlock>
                             <TextBox md:HintAssist.Hint="搜索Mod"
                                      Text="{Binding DescriptionFilter.FilterValue,
                                      Source={x:Static model:FileModel.Instance}}" />
                         </StackPanel>
-                    </DataGridTemplateColumn.Header>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Description, Mode=OneWay}"
-                                       MouseDown="Item_OnClick"
-                                       ContextMenu="{StaticResource FileContextMenu}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
+                    </DataGridTextColumn.Header>
+                </DataGridTextColumn>
                 <DataGridTextColumn IsReadOnly="True" Header="大小" SortMemberPath="Length"
                                     Binding="{Binding  LengthDesc,Mode=OneWay}">
                 </DataGridTextColumn>

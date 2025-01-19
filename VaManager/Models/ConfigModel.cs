@@ -22,7 +22,6 @@ public class ConfigModel : ViewModelBase<ConfigModel>
     {
         try
         {
-        
             if (!File.Exists(ConfigFileName)) return;
             var configJson = File.ReadAllText(ConfigFileName);
             var config = JsonSerializer.Deserialize<SerializableConfig>(configJson);
