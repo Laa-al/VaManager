@@ -1,0 +1,75 @@
+﻿<Page x:Class="VaManager.Views.ConfigManagement.Config"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:VaManager.Views.ConfigManagement"
+      xmlns:services="clr-namespace:VaManager.Services"
+      xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:model="clr-namespace:VaManager.Models"
+      xmlns:system="clr-namespace:System;assembly=System.Runtime"
+      xmlns:extensions="clr-namespace:VaManager.Extensions"
+      mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="900"
+      DataContext="{Binding Source={x:Static model:ConfigModel.Instance}}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="0">
+            <StackPanel>
+                <StackPanel.Resources>
+                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}" />
+                </StackPanel.Resources>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="64" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0">主目录：</TextBlock>
+                    <TextBox Grid.Column="1" Text="{Binding  Config.MainFolderPath}" />
+                    <Button Grid.Column="2" ToolTip="选择文件" Click="SelectMainFolder">
+                        <md:PackIcon Kind="FolderOutline" />
+                    </Button>
+                </Grid>
+                <Separator />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Width="{x:Static system:Double.NaN}">选择mod存放目录</TextBlock>
+                    <Button Grid.Column="1" ToolTip="删除选择" Click="DeleteModFolder">
+                        <md:PackIcon Kind="DeleteOutline" />
+                    </Button>
+                    <Button Grid.Column="2" ToolTip="选择文件" Click="SelectModFolder">
+                        <md:PackIcon Kind="FolderOutline" />
+                    </Button>
+                </Grid>
+                <ListView ItemsSource="{Binding Config.ExtraModPaths}"
+                          x:Name="ModPathsListView" SelectionMode="Single">
+                </ListView>
+                <Separator />
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0">图片预览大小限制(KB)：</TextBlock>
+                    <md:NumericUpDown Grid.Column="1" Value="{Binding  Config.MaxImageLength}" />
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <StackPanel.Resources>
+                <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}" />
+            </StackPanel.Resources>
+            <Button Click="RestoreButton_OnClick">还原</Button>
+            <Button Click="ClickButton_OnClick">保存</Button>
+            <Button Click="AnalyzeButton_OnClick">分析本地数据</Button>
+        </StackPanel>
+    </Grid>
+</Page>

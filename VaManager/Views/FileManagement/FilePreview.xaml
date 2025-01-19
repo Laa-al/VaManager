@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="VaManager.Views.FileManagement.FilePreview"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:model="clr-namespace:VaManager.Models"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300"
+             DataContext="{Binding Source={x:Static model:FileModel.Instance}}">
+    <Grid x:Name="Grid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Width="2" VerticalAlignment="Stretch" HorizontalAlignment="Center"
+                Background="{StaticResource MaterialDesignDarkSeparatorBackground}">
+        </Border>
+        <Thumb Grid.Column="0" Width="20" DragDelta="Resize" Cursor="SizeWE"
+               VerticalAlignment="Stretch" HorizontalAlignment="Center"
+               Style="{StaticResource MaterialDesignThumb}">
+        </Thumb>
+        <TabControl Grid.Column="1" Style="{StaticResource MaterialDesignTabControl}"
+                    DataContext="{Binding FileSelect}">
+            <TabControl.Resources>
+                <Style TargetType="TabItem" BasedOn="{StaticResource MaterialDesignTabItem}" />
+                <Style TargetType="StackPanel" x:Key="TabItem">
+                    <Setter Property="Margin" Value="16"></Setter>
+                </Style>
+            </TabControl.Resources>
+            <TabItem Header="文件信息">
+                <ScrollViewer>
+                    <StackPanel Style="{StaticResource TabItem}">
+                        <TextBlock TextWrapping="Wrap">
+                            <TextBlock.Resources>
+                            </TextBlock.Resources>
+                            <LineBreak />
+                            <Run Text="名称：" Style="{StaticResource Label}" />
+                            <Run Text="{Binding Name,Mode=OneWay}" />
+                            <LineBreak />
+                            <Run Text="路径：" Style="{StaticResource Label}" />
+                            <Run Text="{Binding Path,Mode=OneWay}" />
+                            <LineBreak />
+                            <Run Text="类型：" Style="{StaticResource Label}" />
+                            <Run Text="{Binding Type,Mode=OneWay}" />
+                            <LineBreak />
+                            <Run Text="Mod：" Style="{StaticResource Label}" />
+                            <Run Text="{Binding Mod.PackageName,FallbackValue=未知,Mode=OneWay}" />
+
+                            <Button Height="10" Width="10" Click="NavigateToMod"
+                                    IsEnabled="{Binding IsModFile,FallbackValue=False }"
+                                    Style="{StaticResource MaterialDesignIconButton}">
+                                <md:PackIcon Kind="NavigationOutline" Height="10" Width="10" />
+                            </Button>
+                            <LineBreak />
+                        </TextBlock>
+                        <Image Stretch="UniformToFill"
+                               Source="{Binding Preview, IsAsync=True, Mode=OneWay}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

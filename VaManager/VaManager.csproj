@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Controlers\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MaterialDesignColors" Version="5.2.1" />
+      <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
+      <PackageReference Include="Serilog" Version="4.2.0" />
+      <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+      <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+      <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="Views\Explorer\ExplorerHeader.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\ModManagement\ModBrowser.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\ModManagement\ModExplorer.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\ModManagement\ModPreview.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <ApplicationDefinition Remove="App.xaml" />
+      <Page Include="App.xaml" />
+    </ItemGroup>
+
+</Project>

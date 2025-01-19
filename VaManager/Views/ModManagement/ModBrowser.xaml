@@ -1,0 +1,140 @@
+﻿<UserControl x:Class="VaManager.Views.ModManagement.ModBrowser"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:model="clr-namespace:VaManager.Models"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" d:DesignHeight="900" d:DesignWidth="900"
+             DataContext="{Binding Source={x:Static model:ModModel.Instance}}">
+    <Grid>
+        <Grid.Resources>
+            <ContextMenu x:Key="ModContextMenu">
+                <MenuItem Name="OnlyFilterThis" Header="仅选择此项" Click="SelectOnly_OnClick"></MenuItem>
+                <MenuItem Name="DeleteThisMod" Header="删除此Mod" Click="DeleteMod_OnClick"></MenuItem>
+                <MenuItem Name="OpenLocalPath" Header="打开本地路径" Click="OpenLocalPath_OnClick"></MenuItem>
+                <MenuItem Name="OpenFile" Header="打开本地文件" Click="OpenFile_OnClick"></MenuItem>
+            </ContextMenu>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <CheckBox IsChecked="{Binding SameGuidFilter.Enabled}"
+                      Content="仅显示相同Guid">
+            </CheckBox>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding ModList}"
+                  SelectedItem="{Binding ModSelect}"
+                  CanUserAddRows="False" HeadersVisibility="All"
+                  CanUserSortColumns="True" ColumnWidth="128"
+                  EnableRowVirtualization="True" AutoGenerateColumns="False"
+                  VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.CacheLength="2"
+                  VirtualizingPanel.CacheLengthUnit="Page"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                  VirtualizingPanel.IsContainerVirtualizable="True"
+                  md:DataGridAssist.ApplyMaterialDesignColumnStyles="True">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Width="Auto"
+                                        Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
+                                        EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"
+                                        ElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnStyle}">
+                    <DataGridCheckBoxColumn.Header>
+                        <Border Background="Transparent">
+                            <CheckBox
+                                IsChecked="{Binding   IsAllItemsSelected, Source={x:Static model:ModModel.Instance}}" />
+                        </Border>
+                    </DataGridCheckBoxColumn.Header>
+                </DataGridCheckBoxColumn>
+                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="PackageName">
+                    <DataGridTemplateColumn.Header>
+                        <StackPanel>
+                            <TextBlock>名称</TextBlock>
+                            <TextBox md:HintAssist.Hint="搜索名称"
+                                     Text="{Binding NameFilter.FilterValue,
+                                      Source={x:Static model:ModModel.Instance}}" />
+                        </StackPanel>
+                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding PackageName, Mode=OneWay}"
+                                       MouseDown="Line_OnClick"
+                                       ContextMenu="{StaticResource ModContextMenu}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="CreatorName">
+                    <DataGridTemplateColumn.Header>
+                        <StackPanel>
+                            <TextBlock>作者</TextBlock>
+                            <TextBox md:HintAssist.Hint="搜索作者"
+                                     Text="{Binding CreatorFilter.FilterValue,
+                                      Source={x:Static model:ModModel.Instance}}" />
+                        </StackPanel>
+                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding CreatorName, Mode=OneWay}"
+                                       MouseDown="Line_OnClick"
+                                       ContextMenu="{StaticResource ModContextMenu}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="FileName">
+                    <DataGridTemplateColumn.Header>
+                        <StackPanel>
+                            <TextBlock>文件名</TextBlock>
+                            <TextBox md:HintAssist.Hint="搜索文件名"
+                                     Text="{Binding FileNameFilter.FilterValue,
+                                      Source={x:Static model:ModModel.Instance}}" />
+                        </StackPanel>
+                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding FileName, Mode=OneWay}"
+                                       MouseDown="Line_OnClick"
+                                       ContextMenu="{StaticResource ModContextMenu}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn IsReadOnly="True" Header="大小" SortMemberPath="Length"
+                                    Binding="{Binding  LengthDesc,Mode=OneWay}">
+                </DataGridTextColumn>
+                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="ModPath">
+                    <DataGridTemplateColumn.Header>
+                        <StackPanel>
+                            <TextBlock>Mod路径</TextBlock>
+                            <TextBox md:HintAssist.Hint="搜索路径"
+                                     Text="{Binding PathFilter.FilterValue,
+                                      Source={x:Static model:ModModel.Instance}}" />
+                        </StackPanel>
+                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock TextWrapping="Wrap"
+                                       Text="{Binding ModPath, Mode=OneWay}"
+                                       MouseDown="Line_OnClick"
+                                       ContextMenu="{StaticResource ModContextMenu}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn CanUserSort="True" SortMemberPath="ProgramVersion" Header="应用版本">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock TextWrapping="Wrap"
+                                       Text="{Binding ProgramVersion, Mode=OneWay}"
+                                       MouseDown="Line_OnClick"
+                                       ContextMenu="{StaticResource ModContextMenu}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
