@@ -24,7 +24,6 @@ public sealed class FileModel : ViewModelBase<FileModel>
     {
         FileFilters =
         [
-            new FileDefaultFilter(),
             NameFilter,
             TypeFilter,
             IgnoreUserFilter,
@@ -122,7 +121,7 @@ public sealed class FileModel : ViewModelBase<FileModel>
         }
         else if (FolderOpen is not null)
         {
-            foreach (var folder in FolderOpen.Children)
+            foreach (var folder in FolderOpen.Children.Where(u => u.DefaultVisibility))
             {
                 ItemList.Add(folder);
             }

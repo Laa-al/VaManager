@@ -46,7 +46,7 @@
             </DataGrid.RowStyle>
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Width="Auto"
-                                        Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
+                                        Binding="{Binding IsSelectedWithNotification, UpdateSourceTrigger=PropertyChanged}"
                                         EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"
                                         ElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnStyle}">
                     <DataGridCheckBoxColumn.Header>

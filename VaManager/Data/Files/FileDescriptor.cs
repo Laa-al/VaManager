@@ -65,6 +65,8 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
         }
     }
 
+    public override bool DefaultVisibility => FileModel.Instance.IgnoreUserFilter.Filter(this);
+
     public override string Description => Mod?.PackageName ?? "未知";
 
     #region Function
@@ -88,14 +90,12 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
                         image.BeginInit();
                         image.StreamSource = new MemoryStream(bytes);
                         image.EndInit();
-                        SetProperty(ref _preview, image);
+                        SetProperty(ref _preview, image, nameof(Preview));
                     });
                 });
 
                 break;
             }
-            default:
-                break;
         }
     }
 

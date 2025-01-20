@@ -7,11 +7,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
     </PropertyGroup>
-
-    <ItemGroup>
-      <Folder Include="Controlers\" />
-    </ItemGroup>
-
+    
     <ItemGroup>
       <PackageReference Include="MaterialDesignColors" Version="5.2.1" />
       <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />

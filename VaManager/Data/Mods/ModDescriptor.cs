@@ -49,8 +49,20 @@ public class ModDescriptor(string modPath, JsonObject metadata, string[] entries
         get => _isSelected;
         set
         {
-            SetProperty(ref _isSelected, value);
-            ModModel.Instance.OnPropertyChanged(nameof(ModModel.IsAllItemsSelected));
+            if (SetProperty(ref _isSelected, value))
+            {
+                ModModel.Instance.OnPropertyChanged(nameof(ModModel.IsAllItemsSelected));
+            }
+        }
+    }
+
+    public bool IsSelectedWithNotification
+    {
+        get => IsSelected;
+        set
+        {
+            IsSelected = value;
+            FileModel.Instance.RefreshFileList();
         }
     }
 

@@ -32,6 +32,11 @@ public class FolderDescriptor(string name) : ItemDescriptor(name)
 
     public override string Type => "文件夹";
     public override BitmapImage Preview => GlobalResources.Instance.FolderImage;
+
+    public override bool DefaultVisibility =>
+        _files.Any(u => u.DefaultVisibility) ||
+        _children.Any(u => u.DefaultVisibility);
+
     public override string Description => string.Empty;
 
     public FolderDescriptor? Parent
@@ -50,6 +55,7 @@ public class FolderDescriptor(string name) : ItemDescriptor(name)
 
     public IReadOnlyList<FolderDescriptor> Children => _children;
     public IReadOnlyList<FileDescriptor> Files => _files;
+
 
     public void Clear()
     {
@@ -71,7 +77,7 @@ public class FolderDescriptor(string name) : ItemDescriptor(name)
             };
         }
 
-        return child?.GetByPath(folderNames,createIfNotExists);
+        return child?.GetByPath(folderNames, createIfNotExists);
     }
 
     internal static void MoveFile(FolderDescriptor? form, FolderDescriptor? to, FileDescriptor file)
