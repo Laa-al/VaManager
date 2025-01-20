@@ -96,7 +96,7 @@ public partial class FileBrowser
                 Model.FolderOpen = folderDescriptor;
                 break;
             case FileDescriptor fileDescriptor:
-                fileDescriptor.OpenLocalFile();
+                Task.Run(fileDescriptor.OpenLocalFile);
                 break;
         }
     }

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:model="clr-namespace:VaManager.Models"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:VaManager.Converters"
              mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300"
              DataContext="{Binding Source={x:Static model:FileModel.Instance}}">
     <Grid x:Name="Grid">
@@ -31,6 +32,9 @@
             <TabItem Header="文件信息">
                 <ScrollViewer>
                     <StackPanel Style="{StaticResource TabItem}">
+                        <StackPanel.Resources>
+                            <converters:ByteArrayToBitmapImageConverter x:Key="ByteArrayToBitmapImageConverter" />
+                        </StackPanel.Resources>
                         <TextBlock TextWrapping="Wrap">
                             <TextBlock.Resources>
                             </TextBlock.Resources>
@@ -55,7 +59,8 @@
                             <LineBreak />
                         </TextBlock>
                         <Image Stretch="UniformToFill"
-                               Source="{Binding Preview, IsAsync=True, Mode=OneWay}" />
+                               Source="{Binding Preview, IsAsync=True, Mode=OneWay,
+                               Converter={StaticResource ByteArrayToBitmapImageConverter}}" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

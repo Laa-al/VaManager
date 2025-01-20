@@ -31,7 +31,7 @@ public class FolderDescriptor(string name) : ItemDescriptor(name)
     }
 
     public override string Type => "文件夹";
-    public override BitmapImage Preview => GlobalResources.Instance.FolderImage;
+    public override byte[]? Preview => null;
 
     public override bool DefaultVisibility =>
         _files.Any(u => u.DefaultVisibility) ||

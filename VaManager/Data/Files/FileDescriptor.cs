@@ -1,9 +1,5 @@
-﻿using System.Collections.Concurrent;
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
-using System.Windows;
-using System.Windows.Media.Imaging;
-using Serilog;
 using VaManager.Data.Mods;
 using VaManager.Extensions;
 using VaManager.Models;
@@ -16,8 +12,7 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
 {
     private FolderDescriptor? _folder;
     private ModDescriptor? _mod;
-    private BitmapImage? _preview;
-
+    private byte[]? _data;
 
     public FolderDescriptor? Folder
     {
@@ -46,22 +41,40 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
     public bool IsModFile => Mod is not null;
     public override string Path => $"{Folder?.Path}/{Name}";
     public override string Type => Name[(Name.LastIndexOf('.') + 1)..];
+    public string PathWithoutRoot => Path[(FileManager.RootPathName.Length + 2)..];
 
-    public override BitmapImage? Preview
+    public byte[]? Data
     {
         get
         {
-            if (Length > ConfigModel.ConfigInstance.MaxImageLength * 1024)
-            {
+            if (Length > ConfigModel.ConfigInstance.MaxMemoryLength * 1024)
                 return null;
-            }
 
-            if (_preview is null)
+            if (_data is null)
             {
-                AutoSetPreview();
+                _data = [];
+                var path = EnsureFileExist();
+                if (path is not null)
+                {
+                    using var stream = File.OpenRead(path);
+                    _data = new byte[stream.Length];
+                    stream.ReadExactly(_data, 0, _data.Length);
+                }
             }
 
-            return _preview;
+            return _data;
+        }
+    }
+
+    public override byte[]? Preview
+    {
+        get
+        {
+            return Type switch
+            {
+                "png" or "jpg" or "jpeg" or "bmp" or "tiff"  or "tif" or "gif" or "ico" => Data,
+                _ => null
+            };
         }
     }
 
@@ -71,120 +84,59 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
 
     #region Function
 
-    private static readonly ConcurrentDictionary<string, FileDescriptor> Cache = [];
-
-    private void AutoSetPreview()
+    private string GetCacheFilePath()
     {
-        Application.Current.Dispatcher.BeginInvoke(() => { _preview = GlobalResources.Instance.DefaultImage; });
-        switch (Type)
-        {
-            case "png":
-            case "jpg":
-            {
-                UsingStream(s =>
-                {
-                    var bytes = s.ReadAllBytes();
-                    Application.Current.Dispatcher.BeginInvoke(() =>
-                    {
-                        var image = new BitmapImage();
-                        image.BeginInit();
-                        image.StreamSource = new MemoryStream(bytes);
-                        image.EndInit();
-                        SetProperty(ref _preview, image, nameof(Preview));
-                    });
-                });
-
-                break;
-            }
-        }
+        if (_mod is null) return "";
+        var userFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var path = System.IO.Path.Combine(userFolderPath, "AppData/Local/Temp",
+            GlobalResources.CachePath, _mod.FileName, Path[1..]);
+        return path;
     }
 
     public void OpenLocalFile()
     {
-        if (Mod is null)
+        var file = EnsureFileExist();
+
+        if (file is not null)
+        {
+            FileManager.OpenFileOrFolder(file);
+        }
+    }
+
+    /// <summary>
+    /// ensure file or cache (for mod) exist,
+    /// if not, create cache or return null.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="FileNotFoundException"></exception>
+    public string? EnsureFileExist()
+    {
+        string path;
+        if (_mod is null)
         {
             var mainPath = ConfigModel.ConfigInstance.MainFolderPath;
             var filePath = Path["/root/".Length..];
-            var path = System.IO.Path.Combine(mainPath, filePath);
-            FileManager.OpenFileOrFolder(path);
-            return;
-        }
-
-        Task.Run(OpenFileInMod);
-    }
-
-    private void OpenFileInMod()
-    {
-        var environment = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var path = System.IO.Path.Combine(environment, "AppData/Local/Temp",
-            GlobalResources.CachePath, Mod!.FileName, Path[1..]);
-        if (File.Exists(path))
-        {
-            FileManager.OpenFileOrFolder(path);
-            return;
-        }
-
-        if (Cache.ContainsKey(path)) return;
-
-        var folder = System.IO.Path.GetDirectoryName(path);
-        if (folder is null) return;
-        if (!FileManager.EnsureFolderExist(folder)) return;
-
-        Cache.TryAdd(path, this);
-
-        try
-        {
-            UsingStream(s =>
-            {
-                File.WriteAllBytes(path, s.ReadAllBytes());
-                FileManager.OpenFileOrFolder(path);
-            });
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, e.Message);
-        }
-
-        Cache.Remove(path, out _);
-    }
-
-    public void UsingStream(Action<Stream> action)
-    {
-        var pathWithoutRoot = Path["/root/".Length..];
-        if (_mod is null)
-        {
-            var path = System.IO.Path.Combine(
-                ConfigModel.ConfigInstance.MainFolderPath, pathWithoutRoot);
-
-            if (!File.Exists(path))
-            {
-                Log.Warning($"File {pathWithoutRoot} does not exist");
-                return;
-            }
-
-            using var stream = File.OpenRead(path);
-            action(stream);
+            path = System.IO.Path.Combine(mainPath, filePath);
         }
         else
         {
-            if (!File.Exists(_mod.ModPath))
+            path = GetCacheFilePath();
+            if (!File.Exists(path))
             {
-                Log.Warning($"File {_mod.ModPath} does not exist!");
-                return;
-            }
-
-            using var archive = ZipFile.OpenRead(_mod.ModPath);
-            var entry = archive.GetEntry(pathWithoutRoot);
-            if (entry is not null)
-            {
+                using var archive = ZipFile.OpenRead(_mod.ModPath);
+                var entry = archive.GetEntry(PathWithoutRoot);
+                if (entry is null) return null;
                 using var stream = entry.Open();
-                action(stream);
-            }
-            else
-            {
-                Log.Warning($"File {pathWithoutRoot} does not exist in mod!");
+                var bytes = stream.ReadAllBytes();
+                var folder = System.IO.Path.GetDirectoryName(path);
+                if (folder is null) return null;
+                FileManager.EnsureFolderExist(folder);
+                using var fs = File.OpenWrite(path);
+                fs.Write(bytes, 0, bytes.Length);
             }
         }
+
+        return path;
     }
 
     #endregion

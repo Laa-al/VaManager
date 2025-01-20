@@ -14,9 +14,10 @@ namespace VaManager.Services;
 
 public class FileManager
 {
+    public const string RootPathName = "root";
     public static FileManager Instance { get; } = new();
 
-    private readonly FolderDescriptor _rootFolder = new("root");
+    private readonly FolderDescriptor _rootFolder = new(RootPathName);
     private readonly List<FileDescriptor> _fileDescriptors = [];
     private readonly List<ModDescriptor> _modDescriptors = [];
 
@@ -37,7 +38,7 @@ public class FileManager
 
         Enqueue(index + 1, path.Length);
 
-        if (folderNames.FirstOrDefault() == "root")
+        if (folderNames.FirstOrDefault() == RootPathName)
         {
             folderNames.Dequeue();
         }

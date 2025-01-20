@@ -6,7 +6,7 @@ namespace VaManager.Models;
 public class SerializableConfig:ViewModelBase
 {
     private string _mainFolderPath = string.Empty;
-    private long _maxImageLength = 1024;
+    private long _maxMemoryLength = 1024;
 
     public string MainFolderPath
     {
@@ -16,9 +16,9 @@ public class SerializableConfig:ViewModelBase
 
     public ObservableCollection<string> ExtraModPaths { get; set; } = [];
 
-    public long MaxImageLength
+    public long MaxMemoryLength
     {
-        get => _maxImageLength;
-        set => SetProperty(ref _maxImageLength, value);
+        get => _maxMemoryLength;
+        set => SetProperty(ref _maxMemoryLength, value);
     }
 }
