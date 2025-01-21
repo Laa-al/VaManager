@@ -35,9 +35,9 @@ public class FileDescriptor : ItemDescriptor
     #region Calculated properties
 
     public bool IsModFile => Mod is not null;
-    public string PathWithoutRoot => Path[(FileManager.RootPathName.Length + 2)..];
-    public override string Path => $"{Folder?.Path}/{Name}";
-    public override string Type => Name[(Name.LastIndexOf('.') + 1)..];
+    public string PathWithoutRoot => Path[(FileManager.RootPathName.Length + 1)..];
+    public override string Path => $"{Folder?.Path}{Name}";
+    public override string Type => System.IO.Path.GetExtension(Name);
     public override string Description => Mod?.PackageName ?? "未知";
     public override string LengthDesc => NumberExtensions.GetFileLengthDesc(Length);
     public override string CompressedLengthDesc => NumberExtensions.GetFileLengthDesc(CompressedLength);
@@ -105,7 +105,7 @@ public class FileDescriptor : ItemDescriptor
         {
             return Type switch
             {
-                "png" or "jpg" or "jpeg" or "bmp" or "tiff" or "tif" or "gif" or "ico" => Data,
+                ".png" or ".jpg" or ".jpeg" or ".bmp" or ".tiff" or ".tif" or ".gif" or ".ico" => Data,
                 _ => null
             };
         }

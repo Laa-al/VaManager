@@ -6,11 +6,11 @@
       xmlns:local="clr-namespace:VaManager.Views.FileManagement"
       mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="900">
     <Grid>
-        <Grid.ColumnDefinitions >
+        <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <local:FileBrowser Grid.Column="0"></local:FileBrowser>
-        <local:FilePreview Grid.Column="1" ></local:FilePreview>
+        <local:FilePreview Grid.Column="1"></local:FilePreview>
     </Grid>
 </Page>

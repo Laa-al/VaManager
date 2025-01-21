@@ -9,7 +9,7 @@ public class FolderDescriptor(string name) : ItemDescriptor(name)
     #region Properties
 
     private string? _path;
-    public override string Path => _path ??= $"{Parent?.Path}/{Name}";
+    public override string Path => _path ??= $"{Parent?.Path}{Name}/";
 
     #endregion
 
@@ -46,7 +46,7 @@ public class FolderDescriptor(string name) : ItemDescriptor(name)
     public FolderDescriptor? Parent
     {
         get => _parent;
-        set
+        private set
         {
             _parent?._children.Remove(this);
             value?._children.Add(this);
