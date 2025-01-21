@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
 using VaManager.Data.Mods;
 using VaManager.Extensions;
@@ -34,10 +33,11 @@ public class FileDescriptor : ItemDescriptor
 
     #region Calculated properties
 
+    private string? _type;
     public bool IsModFile => Mod is not null;
     public string PathWithoutRoot => Path[(FileManager.RootPathName.Length + 1)..];
     public override string Path => $"{Folder?.Path}{Name}";
-    public override string Type => System.IO.Path.GetExtension(Name);
+    public override string Type => _type ??= System.IO.Path.GetExtension(Name).ToLower();
     public override string Description => Mod?.PackageName ?? "未知";
     public override string LengthDesc => NumberExtensions.GetFileLengthDesc(Length);
     public override string CompressedLengthDesc => NumberExtensions.GetFileLengthDesc(CompressedLength);

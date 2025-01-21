@@ -1,9 +1,8 @@
-﻿using VaManager.Data.Files;
-using VaManager.Data.Tools;
+﻿using VaManager.Data.Tools;
 using VaManager.Models;
 using VaManager.Models.Basic;
 
-namespace VaManager.Data.Mods;
+namespace VaManager.Data.Files;
 
 public class FileDescriptionFilter :ViewModelBase, IFilter<FileDescriptor>
 {

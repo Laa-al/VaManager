@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using VaManager.Models;
 using VaManager.Services;
@@ -53,17 +51,22 @@ public partial class Config
         }
     }
 
-    private void ClickButton_OnClick(object sender, RoutedEventArgs e)
+    private void RoutedEvent_ClearCache(object sender, RoutedEventArgs e)
+    {
+        FileManager.ClearLocalFileCache();
+    }
+
+    private void RoutedEvent_SaveConfig(object sender, RoutedEventArgs e)
     {
         Model.SaveConfig();
     }
 
-    private void AnalyzeButton_OnClick(object sender, RoutedEventArgs e)
+    private void RoutedEvent_Analyze(object sender, RoutedEventArgs e)
     {
         FileManager.Instance.ReanalyzeFromConfig();
     }
 
-    private void RestoreButton_OnClick(object sender, RoutedEventArgs e)
+    private void RoutedEvent_LoadConfig(object sender, RoutedEventArgs e)
     {
         Model.LoadConfig();
     }

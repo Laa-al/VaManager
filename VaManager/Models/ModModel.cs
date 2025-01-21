@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using VaManager.Data.Files;
 using VaManager.Data.Mods;
 using VaManager.Data.Tools;
 using VaManager.Extensions;

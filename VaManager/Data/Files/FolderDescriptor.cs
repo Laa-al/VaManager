@@ -1,8 +1,4 @@
-﻿using System.Windows.Media.Imaging;
-using VaManager.Data.Files;
-using VaManager.Resources;
-
-namespace VaManager.Data;
+﻿namespace VaManager.Data.Files;
 
 public class FolderDescriptor(string name) : ItemDescriptor(name)
 {

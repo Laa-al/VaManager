@@ -1,7 +1,4 @@
 ﻿using System.IO;
-using System.IO.Compression;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using Microsoft.VisualBasic.FileIO;
 using Serilog;
 using VaManager.Data;
@@ -72,7 +69,7 @@ public class FileManager
         foreach (var file in files)
         {
             var suffix = Path.GetExtension(file);
-            if (SearchPattern.Contains(suffix))
+            if (SearchPattern.Contains(suffix, StringComparer.OrdinalIgnoreCase))
                 AddMod(file);
         }
     }
@@ -125,7 +122,6 @@ public class FileManager
         foreach (var file in modDescriptor.Files)
         {
             file.Folder = null;
-            file.Mod = null;
             _fileDescriptors.Remove(file);
         }
 
@@ -160,8 +156,6 @@ public class FileManager
 
     #region Static Function
 
-    
-    
     public static void ClearLocalFileCache()
     {
         var cachePath = GlobalResources.GetFileCacheFolder();

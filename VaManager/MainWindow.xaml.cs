@@ -1,10 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using MaterialDesignThemes.Wpf;
-using VaManager.Models;
-using VaManager.Models.Basic;
-using VaManager.Views.ConfigManagement;
-using VaManager.Views.FileManagement;
+﻿using VaManager.Models;
 
 namespace VaManager;
 

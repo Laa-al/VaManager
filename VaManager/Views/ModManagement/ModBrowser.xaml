@@ -17,7 +17,7 @@
                       Content="仅显示相同Guid">
             </CheckBox>
         </StackPanel>
-        <DataGrid Grid.Row="1"
+        <DataGrid Grid.Row="1" x:Name="ModDataGrid"
                   ItemsSource="{Binding ModList}"
                   SelectedItem="{Binding ModSelect}"
                   CanUserAddRows="False" HeadersVisibility="All"

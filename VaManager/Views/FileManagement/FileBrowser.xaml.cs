@@ -1,16 +1,8 @@
-﻿using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
+﻿using System.Windows;
 using System.Windows.Input;
-using Microsoft.Win32;
-using Serilog;
 using VaManager.Data;
 using VaManager.Data.Files;
-using VaManager.Data.Mods;
-using VaManager.Extensions;
 using VaManager.Models;
-using VaManager.Resources;
 
 namespace VaManager.Views.FileManagement;
 

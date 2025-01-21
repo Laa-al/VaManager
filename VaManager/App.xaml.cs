@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using Serilog;
+﻿using Serilog;
 using VaManager.Models;
 using VaManager.Services;
 

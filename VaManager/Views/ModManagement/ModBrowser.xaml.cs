@@ -1,10 +1,6 @@
-﻿using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
+﻿using System.Windows;
 using System.Windows.Input;
 using VaManager.Data.Mods;
-using VaManager.Data.Tools;
 using VaManager.Models;
 using VaManager.Services;
 
@@ -16,9 +12,6 @@ public partial class ModBrowser
     {
         InitializeComponent();
     }
-
-    private ModModel Model => (ModModel)DataContext;
-
 
     #region Data Grid Event
 
@@ -37,7 +30,21 @@ public partial class ModBrowser
 
     private void RoutedEvent_DeleteFile(object sender, RoutedEventArgs e)
     {
-        ActionInvokeWithContext(sender, DeleteFile);
+        List<ModDescriptor> descriptors = [];
+        foreach (var item in ModDataGrid.SelectedItems)
+        {
+            if (item is ModDescriptor descriptor)
+            {
+                descriptors.Add(descriptor);
+            }
+        }
+
+        foreach (var descriptor in descriptors)
+        {
+            DeleteFile(descriptor);
+        }
+        
+        // ActionInvokeWithContext(sender, DeleteFile);
     }
 
     private void RoutedEvent_OpenAndSelectFile(object sender, RoutedEventArgs e)

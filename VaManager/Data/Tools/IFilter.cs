@@ -1,6 +1,4 @@
-﻿using VaManager.Models.Basic;
-
-namespace VaManager.Data.Tools;
+﻿namespace VaManager.Data.Tools;
 
 public interface IFilter<in TItem>
 {

@@ -64,9 +64,10 @@
             <StackPanel.Resources>
                 <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}" />
             </StackPanel.Resources>
-            <Button Click="RestoreButton_OnClick">还原</Button>
-            <Button Click="ClickButton_OnClick">保存</Button>
-            <Button Click="AnalyzeButton_OnClick">分析本地数据</Button>
+            <Button Click="RoutedEvent_ClearCache">清空本地缓存</Button>
+            <Button Click="RoutedEvent_Analyze">分析本地数据</Button>
+            <Button Click="RoutedEvent_LoadConfig">还原</Button>
+            <Button Click="RoutedEvent_SaveConfig">保存</Button>
         </StackPanel>
     </Grid>
 </Page>
