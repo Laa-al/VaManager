@@ -115,15 +115,6 @@ public class FileDescriptor : ItemDescriptor
 
     #region Function
 
-    private string GetCacheFilePath()
-    {
-        if (_mod is null) return "";
-        var userFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var path = System.IO.Path.Combine(userFolderPath, "AppData/Local/Temp",
-            GlobalResources.CachePath, _mod.FileName, Path[1..]);
-        return path;
-    }
-
     public void OpenLocalFile()
     {
         var file = EnsureFileExist();
@@ -151,7 +142,9 @@ public class FileDescriptor : ItemDescriptor
         }
         else
         {
-            path = GetCacheFilePath();
+            path = System.IO.Path.Combine(
+                GlobalResources.GetFileCacheFolder(),
+                _mod.FileName, PathWithoutRoot);
             if (!File.Exists(path))
             {
                 using var archive = ZipFile.OpenRead(_mod.ModPath);
@@ -170,10 +163,10 @@ public class FileDescriptor : ItemDescriptor
         return path;
     }
 
-    [return: NotNullIfNotNull("entry")]
     public static FileDescriptor? CreateFromZipArchiveEntry(ZipArchiveEntry? entry)
     {
         if (entry is null) return null;
+        if (entry.Length == 0) return null;
         var fileDescriptor = new FileDescriptor(entry.Name, entry);
         return fileDescriptor;
     }

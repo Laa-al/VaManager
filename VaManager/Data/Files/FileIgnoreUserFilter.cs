@@ -11,7 +11,7 @@ public enum FileIgnoreUserFilterMode
     仅筛选Mod项 = 2
 }
 
-public class FileIgnoreUserFilter : ViewModelBase, IFilterDescriptor<FileDescriptor>
+public class FileIgnoreUserFilter : ViewModelBase, IFilter<FileDescriptor>
 {
     public static FileIgnoreUserFilterMode[] Modes { get; } =
     [

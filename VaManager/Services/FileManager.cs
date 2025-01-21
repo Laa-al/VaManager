@@ -63,15 +63,16 @@ public class FileManager
         }
     }
 
+    private static readonly string[] SearchPattern = [".var", ".rar"];
+
     private void AddModsFromFolder(string folderPath)
     {
-        const string searchPattern = "*.var|*.rar";
         var files = Directory.GetFiles(folderPath,
             "*.*", SearchOption.AllDirectories);
         foreach (var file in files)
         {
             var suffix = Path.GetExtension(file);
-            if (searchPattern.Contains(suffix))
+            if (SearchPattern.Contains(suffix))
                 AddMod(file);
         }
     }
@@ -120,6 +121,7 @@ public class FileManager
 
     public void DeleteMod(ModDescriptor modDescriptor)
     {
+        modDescriptor.ModGroup = null;
         foreach (var file in modDescriptor.Files)
         {
             file.Folder = null;
@@ -127,7 +129,6 @@ public class FileManager
             _fileDescriptors.Remove(file);
         }
 
-        modDescriptor.ModGroup = null;
         _modDescriptors.Remove(modDescriptor);
 
         FileSystem.DeleteFile(modDescriptor.ModPath, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
@@ -158,6 +159,14 @@ public class FileManager
     }
 
     #region Static Function
+
+    
+    
+    public static void ClearLocalFileCache()
+    {
+        var cachePath = GlobalResources.GetFileCacheFolder();
+        Directory.Delete(cachePath, true);
+    }
 
     public static void OpenFileOrFolder(string path)
     {

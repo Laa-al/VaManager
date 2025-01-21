@@ -4,7 +4,7 @@ using VaManager.Models.Basic;
 
 namespace VaManager.Data.Mods;
 
-public class ModSameGuidFilter : ViewModelBase, IFilterDescriptor<ModDescriptor>
+public class ModSameGuidFilter : ViewModelBase, IFilter<ModDescriptor>
 {
     private bool _enabled;
 

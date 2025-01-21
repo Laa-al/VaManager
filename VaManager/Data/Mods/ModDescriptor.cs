@@ -137,12 +137,14 @@ public class ModDescriptor : ViewModelBase
 
         foreach (var entry in archive.Entries)
         {
-            if (entry.Length <= 0) continue;
-            var fileDescriptor = FileDescriptor.CreateFromZipArchiveEntry(entry);
-            if (fileDescriptor.Name == "meta.json") continue;
+            var fileDescriptor = FileDescriptor
+                .CreateFromZipArchiveEntry(entry);
             var directory = Path.GetDirectoryName(entry.FullName);
-            if (directory is null) continue;
-            var folderDescriptor = rootFolder.GetChildByFolderPath(directory, true);
+            if (fileDescriptor is null ||
+                fileDescriptor.Name == "meta.json" ||
+                directory is null) continue;
+            var folderDescriptor = rootFolder
+                .GetChildByFolderPath(directory, true);
             fileDescriptor.Folder = folderDescriptor;
             files.Add(fileDescriptor);
         }

@@ -1,6 +1,6 @@
 ﻿namespace VaManager.Extensions;
 
-public class NumberExtensions
+public static class NumberExtensions
 {
     public static string GetFileLengthDesc(long length)
     {

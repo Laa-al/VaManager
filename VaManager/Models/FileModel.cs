@@ -87,7 +87,7 @@ public sealed class FileModel : ViewModelBase<FileModel>
     public ObservableCollection<ItemDescriptor> ItemList { get; } = [];
     public List<FolderDescriptor> HistoryFolder { get; } = [];
 
-    public IFilterDescriptor<FileDescriptor>[] FileFilters { get; }
+    public IFilter<FileDescriptor>[] FileFilters { get; }
 
     #region Filters
 

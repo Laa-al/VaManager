@@ -5,7 +5,7 @@ using VaManager.Models.Basic;
 
 namespace VaManager.Data.Mods;
 
-public class FileNameFilter :ViewModelBase, IFilterDescriptor<FileDescriptor>
+public class FileNameFilter :ViewModelBase, IFilter<FileDescriptor>
 {
     private string _filterValue = string.Empty;
 

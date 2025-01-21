@@ -22,6 +22,13 @@ public class GlobalResources
 
     public BitmapImage DefaultImage { get; } = new();
     public BitmapImage FolderImage { get; } = new();
-    
+
     public const string CachePath = "82husa08517h987";
+    
+    public static string GetFileCacheFolder()
+    {
+        var userFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var path = System.IO.Path.Combine(userFolderPath, @"AppData\Local\Temp", CachePath);
+        return path;
+    }
 }

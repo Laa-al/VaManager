@@ -31,7 +31,7 @@ public class ModModel : ViewModelBase<ModModel>
     }
 
     public ObservableCollection<ModDescriptor> ModList { get; } = [];
-    public IFilterDescriptor<ModDescriptor>[] ModFilters { get; }
+    public IFilter<ModDescriptor>[] ModFilters { get; }
 
     #region Filters
 
