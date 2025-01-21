@@ -22,8 +22,6 @@ public class GlobalResources
 
     public BitmapImage DefaultImage { get; } = new();
     public BitmapImage FolderImage { get; } = new();
-
-    public string[] ModSuffix { get; } = ["rar", "var"];
     
     public const string CachePath = "82husa08517h987";
 }

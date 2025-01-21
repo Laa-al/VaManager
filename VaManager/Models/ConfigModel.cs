@@ -10,9 +10,14 @@ namespace VaManager.Models;
 
 public class ConfigModel : ViewModelBase<ConfigModel>
 {
+    private SerializableConfig _config = new();
     public static SerializableConfig ConfigInstance => Instance.Config;
-    
-    public SerializableConfig Config { get; set; } = new();
+
+    public SerializableConfig Config
+    {
+        get => _config;
+        set => SetProperty(ref _config, value);
+    }
 
     #region Save & Load
 
@@ -30,11 +35,12 @@ public class ConfigModel : ViewModelBase<ConfigModel>
                 Log.Warning("Config file is empty.");
                 return;
             }
+
             Config = config;
         }
         catch (Exception e)
         {
-            Log.Error(e,"Could not load config file.");
+            Log.Error(e, "Could not load config file.");
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.IO.Compression;
 using VaManager.Data.Mods;
 using VaManager.Extensions;
@@ -8,11 +9,46 @@ using VaManager.Services;
 
 namespace VaManager.Data.Files;
 
-public class FileDescriptor(string name) : ItemDescriptor(name)
+public class FileDescriptor : ItemDescriptor
 {
+    private FileDescriptor(string name, FileInfo fileInfo)
+        : base(name)
+    {
+        Length = fileInfo.Length;
+        CompressedLength = fileInfo.Length;
+    }
+
+    private FileDescriptor(string name, ZipArchiveEntry entry)
+        : base(name)
+    {
+        Length = entry.Length;
+        CompressedLength = entry.CompressedLength;
+    }
+
+    #region Properties
+
+    public long Length { get; set; }
+    public long CompressedLength { get; set; }
+
+    #endregion
+
+    #region Calculated properties
+
+    public bool IsModFile => Mod is not null;
+    public string PathWithoutRoot => Path[(FileManager.RootPathName.Length + 2)..];
+    public override string Path => $"{Folder?.Path}/{Name}";
+    public override string Type => Name[(Name.LastIndexOf('.') + 1)..];
+    public override string Description => Mod?.PackageName ?? "未知";
+    public override string LengthDesc => NumberExtensions.GetFileLengthDesc(Length);
+    public override string CompressedLengthDesc => NumberExtensions.GetFileLengthDesc(CompressedLength);
+    public override bool DefaultVisibility => FileModel.Instance.IgnoreUserFilter.Filter(this);
+
+    #endregion
+
+    #region Connect properties
+
     private FolderDescriptor? _folder;
     private ModDescriptor? _mod;
-    private byte[]? _data;
 
     public FolderDescriptor? Folder
     {
@@ -34,14 +70,11 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
         }
     }
 
-    public long Length { get; set; }
-    public override string LengthDesc => NumberExtensions.GetFileLengthDesc(Length);
-    public long CompressedLength { get; set; }
-    public override string CompressedLengthDesc => NumberExtensions.GetFileLengthDesc(CompressedLength);
-    public bool IsModFile => Mod is not null;
-    public override string Path => $"{Folder?.Path}/{Name}";
-    public override string Type => Name[(Name.LastIndexOf('.') + 1)..];
-    public string PathWithoutRoot => Path[(FileManager.RootPathName.Length + 2)..];
+    #endregion
+
+    #region Cached properties
+
+    private byte[]? _data;
 
     public byte[]? Data
     {
@@ -72,15 +105,13 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
         {
             return Type switch
             {
-                "png" or "jpg" or "jpeg" or "bmp" or "tiff"  or "tif" or "gif" or "ico" => Data,
+                "png" or "jpg" or "jpeg" or "bmp" or "tiff" or "tif" or "gif" or "ico" => Data,
                 _ => null
             };
         }
     }
 
-    public override bool DefaultVisibility => FileModel.Instance.IgnoreUserFilter.Filter(this);
-
-    public override string Description => Mod?.PackageName ?? "未知";
+    #endregion
 
     #region Function
 
@@ -115,7 +146,7 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
         if (_mod is null)
         {
             var mainPath = ConfigModel.ConfigInstance.MainFolderPath;
-            var filePath = Path["/root/".Length..];
+            var filePath = PathWithoutRoot;
             path = System.IO.Path.Combine(mainPath, filePath);
         }
         else
@@ -130,13 +161,29 @@ public class FileDescriptor(string name) : ItemDescriptor(name)
                 var bytes = stream.ReadAllBytes();
                 var folder = System.IO.Path.GetDirectoryName(path);
                 if (folder is null) return null;
-                FileManager.EnsureFolderExist(folder);
+                Directory.CreateDirectory(folder);
                 using var fs = File.OpenWrite(path);
                 fs.Write(bytes, 0, bytes.Length);
             }
         }
 
         return path;
+    }
+
+    [return: NotNullIfNotNull("entry")]
+    public static FileDescriptor? CreateFromZipArchiveEntry(ZipArchiveEntry? entry)
+    {
+        if (entry is null) return null;
+        var fileDescriptor = new FileDescriptor(entry.Name, entry);
+        return fileDescriptor;
+    }
+
+    public static FileDescriptor? CreateFromFileInfo(FileInfo? fileInfo)
+    {
+        if (fileInfo is null) return null;
+        if (fileInfo.Length == 0) return null;
+        var fileDescriptor = new FileDescriptor(fileInfo.Name, fileInfo);
+        return fileDescriptor;
     }
 
     #endregion

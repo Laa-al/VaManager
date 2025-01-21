@@ -13,7 +13,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ScrollViewer Grid.Row="0">
+        <ScrollViewer Grid.Row="0" DataContext="{Binding Config}">
             <StackPanel>
                 <StackPanel.Resources>
                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}" />
@@ -25,7 +25,7 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0">主目录：</TextBlock>
-                    <TextBox Grid.Column="1" Text="{Binding  Config.MainFolderPath}" />
+                    <TextBox Grid.Column="1" Text="{Binding  MainFolderPath}" />
                     <Button Grid.Column="2" ToolTip="选择文件" Click="SelectMainFolder">
                         <md:PackIcon Kind="FolderOutline" />
                     </Button>
@@ -45,7 +45,7 @@
                         <md:PackIcon Kind="FolderOutline" />
                     </Button>
                 </Grid>
-                <ListView ItemsSource="{Binding Config.ExtraModPaths}"
+                <ListView ItemsSource="{Binding ExtraModPaths}"
                           x:Name="ModPathsListView" SelectionMode="Single">
                 </ListView>
                 <Separator />
@@ -56,7 +56,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0">单个文件内存限制(KB)：</TextBlock>
-                    <md:NumericUpDown Grid.Column="1" Value="{Binding  Config.MaxMemoryLength}" />
+                    <md:NumericUpDown Grid.Column="1" Value="{Binding  MaxMemoryLength}" />
                 </Grid>
             </StackPanel>
         </ScrollViewer>
