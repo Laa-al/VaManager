@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System.Collections.Concurrent;
+using System.IO;
 using System.IO.Compression;
+using Serilog;
 using VaManager.Data.Mods;
 using VaManager.Extensions;
 using VaManager.Models;
@@ -125,6 +127,8 @@ public class FileDescriptor : ItemDescriptor
         }
     }
 
+    private static readonly ConcurrentDictionary<string, Task<string?>> ZipTasks = new();
+
     /// <summary>
     /// ensure file or cache (for mod) exist,
     /// if not, create cache or return null.
@@ -133,35 +137,54 @@ public class FileDescriptor : ItemDescriptor
     /// <exception cref="FileNotFoundException"></exception>
     public string? EnsureFileExist()
     {
-        string path;
         if (_mod is null)
         {
             var mainPath = ConfigModel.ConfigInstance.MainFolderPath;
             var filePath = PathWithoutRoot;
-            path = System.IO.Path.Combine(mainPath, filePath);
+            return System.IO.Path.Combine(mainPath, filePath).Replace('/', '\\');
         }
-        else
+
+        var path = System.IO.Path.Combine(
+            GlobalResources.GetFileCacheFolder(),
+            _mod.FileName, PathWithoutRoot).Replace('/', '\\');
+        if (File.Exists(path)) return path;
+
+        if (ZipTasks.TryGetValue(path, out var task))
         {
-            path = System.IO.Path.Combine(
-                GlobalResources.GetFileCacheFolder(),
-                _mod.FileName, PathWithoutRoot);
-            if (!File.Exists(path))
-            {
-                using var archive = ZipFile.OpenRead(_mod.ModPath);
-                var entry = archive.GetEntry(PathWithoutRoot);
-                if (entry is null) return null;
-                using var stream = entry.Open();
-                var bytes = stream.ReadAllBytes();
-                var folder = System.IO.Path.GetDirectoryName(path);
-                if (folder is null) return null;
-                Directory.CreateDirectory(folder);
-                using var fs = File.OpenWrite(path);
-                fs.Write(bytes, 0, bytes.Length);
-            }
+            task.Wait();
+            return task.Result;
         }
+
+        task = new Task<string?>(() =>
+        {
+            using var archive = ZipFile.OpenRead(_mod.ModPath);
+            var entry = archive.GetEntry(PathWithoutRoot);
+            if (entry is null) return null;
+            using var stream = entry.Open();
+            var bytes = stream.ReadAllBytes();
+            var folder = System.IO.Path.GetDirectoryName(path);
+            if (folder is null) return null;
+            Directory.CreateDirectory(folder);
+            using var fs = File.OpenWrite(path);
+            fs.Write(bytes, 0, bytes.Length);
+            ZipTasks.Remove(path, out _);
+            return path;
+        });
+
+        if (!ZipTasks.TryAdd(path, task))
+        {
+            // task confilict
+            Log.Error($"File {path} already exists.");
+            return null;
+        }
+        
+        task.Start();
+        task.Wait();
+
 
         return path;
     }
+
 
     public static FileDescriptor? CreateFromZipArchiveEntry(ZipArchiveEntry? entry)
     {
