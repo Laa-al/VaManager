@@ -6,9 +6,9 @@
              xmlns:model="clr-namespace:VaManager.Models"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:converters="clr-namespace:VaManager.Converters"
-             mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300"
+             mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300"  x:Name="Grid"
              DataContext="{Binding Source={x:Static model:FileModel.Instance}}">
-    <Grid x:Name="Grid">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>

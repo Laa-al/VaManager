@@ -11,6 +11,6 @@
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <local:FileBrowser Grid.Column="0"></local:FileBrowser>
-        <local:FilePreview Grid.Column="1"></local:FilePreview>
+        <local:FilePreview Grid.Column="1"  Width="256"></local:FilePreview>
     </Grid>
 </Page>

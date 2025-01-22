@@ -160,10 +160,10 @@ public class FileDescriptor : ItemDescriptor
             using var archive = ZipFile.OpenRead(_mod.ModPath);
             var entry = archive.GetEntry(PathWithoutRoot);
             if (entry is null) return null;
-            using var stream = entry.Open();
-            var bytes = stream.ReadAllBytes();
             var folder = System.IO.Path.GetDirectoryName(path);
             if (folder is null) return null;
+            using var stream = entry.Open();
+            var bytes = stream.ReadAllBytes();
             Directory.CreateDirectory(folder);
             using var fs = File.OpenWrite(path);
             fs.Write(bytes, 0, bytes.Length);

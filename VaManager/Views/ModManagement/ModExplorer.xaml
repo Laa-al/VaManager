@@ -11,6 +11,6 @@
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <local:ModBrowser Grid.Column="0"></local:ModBrowser>
-        <local:ModPreview Grid.Column="1"></local:ModPreview>
+        <local:ModPreview Grid.Column="1" Width="256"></local:ModPreview>
     </Grid>
 </Page>
